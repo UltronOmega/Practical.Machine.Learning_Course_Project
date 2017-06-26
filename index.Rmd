@@ -24,7 +24,7 @@ library(caret); library(randomForest)
 har.training.dwnld <- download.file(url= "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", destfile= "HARtraining.csv")
 har.test.dwnld <- download.file(url= "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv" , destfile= "HARtesting.csv")
 ```
-####  read the training as har. Read the testing dataset as harTestSet
+####  read the training as hartraining. Read the testing dataset as harTestSet
 ```{r, echo=T, results=T}
 hartraining <- read.csv("HARtraining.csv", sep = ",", header = T, na.strings = c("NA",".","#DIV/0!"))
 dim(hartraining)
@@ -61,6 +61,7 @@ print(paste0("harTestSet rows-->", nrow(harTestSet),", ", "harTestSet cols -->",
 ```
 #### Creating a model for train dataset
 ```{r, echo=T}
+set.seed(123456789)
 modTrain <- train(classe~. , preProcess=c("knnImpute", "center", "scale"), method="rf", data=train)
 ```
 #### Applying this model to create predict outcomes for validation set
@@ -71,7 +72,8 @@ predictedVal <- predict(modTrain,validation)
 ```{r, echo=T, results=F,warning=F}
 accuracy  <- confusionMatrix(predictedVal,validation$classe)
 ```
-```{r, echo=T}
+```{r, echo=T, results=T}
+print(modTrain$finalModel)
 print(accuracy$overall)
 ```
 ####  out of sample error rate
