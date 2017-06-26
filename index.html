@@ -178,22 +178,30 @@ validation &lt;-hartrain[-inTrain,]</code></pre>
 </div>
 <div id="creating-a-model-for-train-dataset" class="section level4">
 <h4>Creating a model for train dataset</h4>
+<pre class="r"><code>modTrain &lt;- train(classe~. , preProcess=c(&quot;knnImpute&quot;, &quot;center&quot;, &quot;scale&quot;), method=&quot;rf&quot;, data=train)</code></pre>
 </div>
 <div id="applying-this-model-to-create-predict-outcomes-for-validation-set" class="section level4">
 <h4>Applying this model to create predict outcomes for validation set</h4>
+<pre class="r"><code>predictedVal &lt;- predict(modTrain,validation)</code></pre>
 </div>
 <div id="checking-the-accuracy-of-our-model-prediction-against-validation-data" class="section level4">
 <h4>checking the accuracy of our model prediction against validation data</h4>
 <pre class="r"><code>accuracy  &lt;- confusionMatrix(predictedVal,validation$classe)</code></pre>
+<pre class="r"><code>print(accuracy$overall)</code></pre>
 <pre><code>##       Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull 
-##      0.9926591      0.9907124      0.9898514      0.9948533      0.2844617 
+##      0.9930669      0.9912294      0.9903250      0.9951940      0.2844617 
 ## AccuracyPValue  McnemarPValue 
 ##      0.0000000            NaN</code></pre>
 </div>
 <div id="out-of-sample-error-rate" class="section level4">
 <h4>out of sample error rate</h4>
-<pre><code>## [1] &quot;in sample error rate--&gt;0.0073409461663948&quot;</code></pre>
-<pre><code>## [1] &quot;out of sample error --&gt;0.73409461663948 %&quot;</code></pre>
+<pre class="r"><code>in.sample.error.rate &lt;- (1)-(accuracy$overall)[[1]]
+print(paste0(&quot;in sample error rate--&gt;&quot;,(in.sample.error.rate)*100, &quot; %&quot;))</code></pre>
+<pre><code>## [1] &quot;in sample error rate--&gt;0.693311582381728 %&quot;</code></pre>
+<pre class="r"><code>outOfSampleAccuracy &lt;- sum(predictedVal == validation$classe)/length(predictedVal)
+out.of.sample.error &lt;- (1-outOfSampleAccuracy)
+print(paste0(&quot;out of sample error --&gt;&quot;, (out.of.sample.error)*100, &quot; %&quot;))</code></pre>
+<pre><code>## [1] &quot;out of sample error --&gt;0.693311582381728 %&quot;</code></pre>
 </div>
 <div id="outcomes-for-hartestset-using-our-predition-model" class="section level4">
 <h4>Outcomes for harTestSet using our predition model</h4>

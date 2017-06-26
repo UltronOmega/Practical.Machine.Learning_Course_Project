@@ -77,7 +77,7 @@ print(accuracy$overall)
 ####  out of sample error rate
 ```{r, echo=T}
 in.sample.error.rate <- (1)-(accuracy$overall)[[1]]
-print(paste0("in sample error rate-->",in.sample.error.rate)*100, " %")
+print(paste0("in sample error rate-->",(in.sample.error.rate)*100, " %"))
 outOfSampleAccuracy <- sum(predictedVal == validation$classe)/length(predictedVal)
 out.of.sample.error <- (1-outOfSampleAccuracy)
 print(paste0("out of sample error -->", (out.of.sample.error)*100, " %"))
