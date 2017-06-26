@@ -1,0 +1,84 @@
+---
+title: "Practical.Machine.Learning.Course.Project"
+author: "Coursera_Fan"
+date: "June 25, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, message = F)
+```
+
+### Human Activity Recognition (HAR) research focusses on predciting which activity was performed at specific time.
+*  In this project we are trying to predict if certain activity was performed correctly or not, based upon data provided.
+    1.  objective of this study is to investigate, how well an activity (excercise in this case) was performed. This can have applications in sports training.
+    2.  Six males age 20-28 performed dumbell biceps curl in five different ways, named A,B,C,D,E, were A is correct way to do excercise and B,C,D,E are incorrect ways.
+
+
+```{r cars, echo=T, warning=FALSE}
+library(caret); library(randomForest)
+```
+
+#### download the training & test dataset
+```{r, echo=T}
+har.training.dwnld <- download.file(url= "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", destfile= "HARtraining.csv")
+har.test.dwnld <- download.file(url= "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv" , destfile= "HARtesting.csv")
+```
+####  read the training as har. Read the testing dataset as harTestSet
+```{r, echo=T, results=T}
+hartraining <- read.csv("HARtraining.csv", sep = ",", header = T, na.strings = c("NA",".","#DIV/0!"))
+dim(hartraining)
+
+harTestSet <- read.csv("HARtesting.csv", sep = ",", header = T, na.strings = c("NA",".","#DIV/0!"))
+```
+####  removing the missing vals from hartraining & HarTestSet
+*  This step will reduce the number of cols as well to 60 from 160
+```{r, echo=T}
+hartraining <- hartraining[,colSums(is.na(hartraining))==0]
+harTestSet <- harTestSet[, which(colSums(is.na(harTestSet))==0)]
+
+```
+####  selecting columns with numeric class only
+```{r, echo=T, results=T}
+numeric.Cols <- which(sapply(hartraining, class) == "numeric")
+hartrain <- hartraining[,numeric.Cols]
+hartrain$classe <- hartraining$classe
+dim(hartrain)
+```
+#### partioning hartrain into training & validation
+```{r, echo=T}
+inTrain <- createDataPartition(y = hartrain$class, p = 3/4, list=F)
+train <- hartrain[inTrain,]
+validation <-hartrain[-inTrain,]
+```
+#### showing the dimensions of all datasets created
+```{r, echo=F, results=T, warning=F}
+print(paste0("hartraining rows-->", nrow(hartraining),", ", "hartraining cols -->", ncol(hartraining)))
+print(paste0("hartrain rows-->", nrow(hartrain),", ", "hartrain cols -->", ncol(hartrain)))
+print(paste0("train rows-->", nrow(train),", ", "train cols -->", ncol(train)))
+print(paste0("validation rows-->", nrow(validation),", ", "validation cols -->", ncol(validation)))
+print(paste0("harTestSet rows-->", nrow(harTestSet),", ", "harTestSet cols -->", ncol(harTestSet)))
+```
+#### Creating a model for train dataset
+```{r}
+modTrain <- train(classe~. , preProcess=c("knnImpute", "center", "scale"), method="rf", data=train)
+```
+#### Applying this model to create predict outcomes for validation set
+```{r}
+predictedVal <- predict(modTrain,validation)
+```
+#### checking the accuracy of our model prediction against validation data
+```{r, echo=T, results=F,warning=F}
+accuracy  <- confusionMatrix(predictedVal,validation$classe)[[3]][1]
+```
+```{r, echo=F, results=T}
+print(paste0("validation set outcome predicted accuracy","--> ",accuracy))
+```
+####  Outcomes for harTestSet using our predition model
+```{r, echo=T, results=F}
+quizPredict<- predict(modTrain,harTestSet)
+```
+#### Here are the final results from prediction model for the quiz
+```{r, echo=F, results=T}
+as.data.frame(quizPredict)
+```
