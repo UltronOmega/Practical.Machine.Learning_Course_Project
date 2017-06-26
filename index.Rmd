@@ -60,20 +60,29 @@ print(paste0("validation rows-->", nrow(validation),", ", "validation cols -->",
 print(paste0("harTestSet rows-->", nrow(harTestSet),", ", "harTestSet cols -->", ncol(harTestSet)))
 ```
 #### Creating a model for train dataset
-```{r}
+```{r, echo=T}
 modTrain <- train(classe~. , preProcess=c("knnImpute", "center", "scale"), method="rf", data=train)
 ```
 #### Applying this model to create predict outcomes for validation set
-```{r}
+```{r, echo=T}
 predictedVal <- predict(modTrain,validation)
 ```
 #### checking the accuracy of our model prediction against validation data
 ```{r, echo=T, results=F,warning=F}
-accuracy  <- confusionMatrix(predictedVal,validation$classe)[[3]][1]
+accuracy  <- confusionMatrix(predictedVal,validation$classe)
 ```
-```{r, echo=F, results=T}
-print(paste0("validation set outcome predicted accuracy","--> ",accuracy))
+```{r, echo=T}
+print(accuracy$overall)
 ```
+####  out of sample error rate
+```{r, echo=T}
+in.sample.error.rate <- (1)-(accuracy$overall)[[1]]
+print(paste0("in sample error rate-->",in.sample.error.rate)*100, " %")
+outOfSampleAccuracy <- sum(predictedVal == validation$classe)/length(predictedVal)
+out.of.sample.error <- (1-outOfSampleAccuracy)
+print(paste0("out of sample error -->", (out.of.sample.error)*100, " %"))
+```
+
 ####  Outcomes for harTestSet using our predition model
 ```{r, echo=T, results=F}
 quizPredict<- predict(modTrain,harTestSet)
